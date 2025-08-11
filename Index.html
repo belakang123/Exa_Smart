@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sekolahku - Sistem Manajemen Sekolah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-active { transform: translateX(0); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .chat-message { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-blue-500">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">S</span>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Sekolahku</h1>
+            </div>
+            <button id="menuToggle" class="md:hidden bg-blue-500 text-white p-2 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="fixed md:relative bg-white w-64 h-screen shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-20">
+            <div class="p-6">
+                <ul class="space-y-3">
+                    <li><button onclick="showSection('home')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-blue-500">🏠</span><span>Beranda</span>
+                    </button></li>
+                    <li><button onclick="showSection('students')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-green-500">👨‍🎓</span><span>Data Siswa</span>
+                    </button></li>
+                    <li><button onclick="showSection('teachers')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-purple-500">👨‍🏫</span><span>Data Guru</span>
+                    </button></li>
+                    <li><button onclick="showSection('schedule')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-orange-500">📅</span><span>Jadwal Pelajaran</span>
+                    </button></li>
+                    <li><button onclick="showSection('grades')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-red-500">📊</span><span>Sistem Penilaian</span>
+                    </button></li>
+                    <li><button onclick="showSection('chat')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                        <span class="text-indigo-500">💬</span><span>Komunikasi</span>
+                    </button></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Home Section -->
+            <section id="home" class="section fade-in">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Siswa</h3>
+                        <p class="text-3xl font-bold text-blue-500" id="totalStudents">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Guru</h3>
+                        <p class="text-3xl font-bold text-green-500" id="totalTeachers">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Kelas Aktif</h3>
+                        <p class="text-3xl font-bold text-purple-500">12</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Profil Sekolah</h3>
+                        <div class="space-y-3">
+                            <p><strong>Nama:</strong> SMA Negeri 1 Jakarta</p>
+                            <p><strong>Alamat:</strong> Jl. Pendidikan No. 123, Jakarta</p>
+                            <p><strong>Telepon:</strong> (021) 1234-5678</p>
+                            <p><strong>Email:</strong> info@sekolahku.sch.id</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Visi & Misi</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <h4 class="font-semibold text-blue-600">Visi:</h4>
+                                <p class="text-sm text-gray-600">Menjadi sekolah unggulan yang menghasilkan generasi cerdas, berkarakter, dan berdaya saing global.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-600">Misi:</h4>
+                                <p class="text-sm text-gray-600">Menyelenggarakan pendidikan berkualitas dengan teknologi modern dan nilai-nilai karakter.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Pengumuman Terbaru</h3>
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-blue-500 pl-4 py-2">
+                            <h4 class="font-semibold">Ujian Tengah Semester</h4>
+                            <p class="text-sm text-gray-600">Ujian tengah semester akan dilaksanakan mulai tanggal 15 Maret 2024.</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4 py-2">
+                            <h4 class="font-semibold">Pendaftaran Ekstrakurikuler</h4>
+                            <p class="text-sm text-gray-600">Pendaftaran ekstrakurikuler semester genap dibuka hingga 10 Maret 2024.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students" class="section hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">Manajemen Data Siswa</h2>
+                        <button onclick="showStudentForm()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            + Tambah Siswa
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <input type="text" id="studentSearch" placeholder="Cari siswa..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">NISN</th>
+                                    <th class="px-4 py-3 text-left">Nama</th>
+                                    <th class="px-4 py-3 text-left">Kelas</th>
+                                    <th class="px-4 py-3 text-left">Email</th>
+                                    <th class="px-4 py-3 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTable">
+                                <!-- Students will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Student Form Modal -->
+                <div id="studentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-30 flex items-center justify-center">
+                    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                        <h3 class="text-xl font-bold mb-4">Tambah/Edit Siswa</h3>
+                        <form id="studentForm">
+                            <div class="space-y-4">
+                                <input type="hidden" id="studentId">
+                                <input type="text" id="studentNISN" placeholder="NISN" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <input type="text" id="studentName" placeholder="Nama Lengkap" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <select id="studentClass" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                    <option value="">Pilih Kelas</option>
+                                    <option value="X-A">X-A</option>
+                                    <option value="X-B">X-B</option>
+                                    <option value="XI-A">XI-A</option>
+                                    <option value="XI-B">XI-B</option>
+                                    <option value="XII-A">XII-A</option>
+                                    <option value="XII-B">XII-B</option>
+                                </select>
+                                <input type="email" id="studentEmail" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <input type="tel" id="studentPhone" placeholder="No. Telepon" class="w-full p-3 border border-gray-300 rounded-lg">
+                                <textarea id="studentAddress" placeholder="Alamat" class="w-full p-3 border border-gray-300 rounded-lg" rows="3"></textarea>
+                            </div>
+                            <div class="flex space-x-3 mt-6">
+                                <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-colors">Simpan</button>
+                                <button type="button" onclick="closeStudentModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Teachers Section -->
+            <section id="teachers" class="section hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">Manajemen Data Guru</h2>
+                        <button onclick="showTeacherForm()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            + Tambah Guru
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <input type="text" id="teacherSearch" placeholder="Cari guru..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">NIP</th>
+                                    <th class="px-4 py-3 text-left">Nama</th>
+                                    <th class="px-4 py-3 text-left">Mata Pelajaran</th>
+                                    <th class="px-4 py-3 text-left">Email</th>
+                                    <th class="px-4 py-3 text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachersTable">
+                                <!-- Teachers will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Teacher Form Modal -->
+                <div id="teacherModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-30 flex items-center justify-center">
+                    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                        <h3 class="text-xl font-bold mb-4">Tambah/Edit Guru</h3>
+                        <form id="teacherForm">
+                            <div class="space-y-4">
+                                <input type="hidden" id="teacherId">
+                                <input type="text" id="teacherNIP" placeholder="NIP" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <input type="text" id="teacherName" placeholder="Nama Lengkap" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <select id="teacherSubject" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                    <option value="">Pilih Mata Pelajaran</option>
+                                    <option value="Matematika">Matematika</option>
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    <option value="Fisika">Fisika</option>
+                                    <option value="Kimia">Kimia</option>
+                                    <option value="Biologi">Biologi</option>
+                                    <option value="Sejarah">Sejarah</option>
+                                    <option value="Geografi">Geografi</option>
+                                </select>
+                                <input type="email" id="teacherEmail" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <input type="tel" id="teacherPhone" placeholder="No. Telepon" class="w-full p-3 border border-gray-300 rounded-lg">
+                                <textarea id="teacherEducation" placeholder="Riwayat Pendidikan" class="w-full p-3 border border-gray-300 rounded-lg" rows="3"></textarea>
+                            </div>
+                            <div class="flex space-x-3 mt-6">
+                                <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">Simpan</button>
+                                <button type="button" onclick="closeTeacherModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="schedule" class="section hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Jadwal Pelajaran</h2>
+                    
+                    <div class="mb-4 flex space-x-4">
+                        <select id="classFilter" class="p-3 border border-gray-300 rounded-lg">
+                            <option value="">Semua Kelas</option>
+                            <option value="X-A">X-A</option>
+                            <option value="X-B">X-B</option>
+                            <option value="XI-A">XI-A</option>
+                            <option value="XI-B">XI-B</option>
+                            <option value="XII-A">XII-A</option>
+                            <option value="XII-B">XII-B</option>
+                        </select>
+                        <button onclick="generateSchedule()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            Generate Jadwal
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto border-collapse">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-3">Jam</th>
+                                    <th class="border border-gray-300 px-4 py-3">Senin</th>
+                                    <th class="border border-gray-300 px-4 py-3">Selasa</th>
+                                    <th class="border border-gray-300 px-4 py-3">Rabu</th>
+                                    <th class="border border-gray-300 px-4 py-3">Kamis</th>
+                                    <th class="border border-gray-300 px-4 py-3">Jumat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scheduleTable">
+                                <!-- Schedule will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grades Section -->
+            <section id="grades" class="section hidden">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Input Nilai</h3>
+                        <form id="gradeForm">
+                            <div class="space-y-4">
+                                <select id="gradeStudent" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                    <option value="">Pilih Siswa</option>
+                                </select>
+                                <select id="gradeSubject" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                    <option value="">Pilih Mata Pelajaran</option>
+                                    <option value="Matematika">Matematika</option>
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    <option value="Fisika">Fisika</option>
+                                    <option value="Kimia">Kimia</option>
+                                </select>
+                                <input type="number" id="gradeValue" placeholder="Nilai (0-100)" min="0" max="100" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                <select id="gradeType" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                                    <option value="">Jenis Penilaian</option>
+                                    <option value="UTS">UTS</option>
+                                    <option value="UAS">UAS</option>
+                                    <option value="Tugas">Tugas</option>
+                                    <option value="Quiz">Quiz</option>
+                                </select>
+                                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-colors">Simpan Nilai</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Statistik Nilai</h3>
+                        <canvas id="gradesChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Laporan Nilai</h3>
+                    <div class="mb-4">
+                        <select id="reportStudent" class="p-3 border border-gray-300 rounded-lg mr-4">
+                            <option value="">Pilih Siswa</option>
+                        </select>
+                        <button onclick="generateReport()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            Lihat Laporan
+                        </button>
+                    </div>
+                    <div id="gradeReport" class="overflow-x-auto">
+                        <!-- Grade report will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Section -->
+            <section id="chat" class="section hidden">
+                <div class="grid md:grid-cols-3 gap-6 h-96">
+                    <div class="bg-white rounded-xl shadow-lg p-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Kontak</h3>
+                        <div class="space-y-2">
+                            <div onclick="selectChat('guru')" class="p-3 hover:bg-gray-50 rounded-lg cursor-pointer border-l-4 border-purple-500">
+                                <div class="font-semibold">Grup Guru</div>
+                                <div class="text-sm text-gray-600">15 anggota</div>
+                            </div>
+                            <div onclick="selectChat('siswa')" class="p-3 hover:bg-gray-50 rounded-lg cursor-pointer border-l-4 border-green-500">
+                                <div class="font-semibold">Grup Siswa</div>
+                                <div class="text-sm text-gray-600">120 anggota</div>
+                            </div>
+                            <div onclick="selectChat('orangtua')" class="p-3 hover:bg-gray-50 rounded-lg cursor-pointer border-l-4 border-blue-500">
+                                <div class="font-semibold">Grup Orang Tua</div>
+                                <div class="text-sm text-gray-600">95 anggota</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-2 bg-white rounded-xl shadow-lg flex flex-col">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 id="chatTitle" class="text-lg font-bold text-gray-800">Pilih Grup Chat</h3>
+                        </div>
+                        <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3">
+                            <div class="text-center text-gray-500">Pilih grup untuk memulai percakapan</div>
+                        </div>
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex space-x-2">
+                                <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" disabled>
+                                <button onclick="sendMessage()" id="sendButton" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors" disabled>Kirim</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+        let grades = JSON.parse(localStorage.getItem('grades')) || [];
+        let currentChat = null;
+        let messages = JSON.parse(localStorage.getItem('messages')) || {};
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            renderStudents();
+            renderTeachers();
+            generateSchedule();
+            populateGradeSelects();
+            initializeGradesChart();
+            
+            // Add sample data if empty
+            if (students.length === 0) {
+                addSampleData();
+            }
+        });
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('sidebar-active');
+        }
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('sidebar-active');
+        });
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalTeachers').textContent = teachers.length;
+        }
+
+        // Student Management
+        function showStudentForm(student = null) {
+            document.getElementById('studentModal').classList.remove('hidden');
+            if (student) {
+                document.getElementById('studentId').value = student.id;
+                document.getElementById('studentNISN').value = student.nisn;
+                document.getElementById('studentName').value = student.name;
+                document.getElementById('studentClass').value = student.class;
+                document.getElementById('studentEmail').value = student.email;
+                document.getElementById('studentPhone').value = student.phone || '';
+                document.getElementById('studentAddress').value = student.address || '';
+            } else {
+                document.getElementById('studentForm').reset();
+                document.getElementById('studentId').value = '';
+            }
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const studentData = {
+                id: document.getElementById('studentId').value || Date.now().toString(),
+                nisn: document.getElementById('studentNISN').value,
+                name: document.getElementById('studentName').value,
+                class: document.getElementById('studentClass').value,
+                email: document.getElementById('studentEmail').value,
+                phone: document.getElementById('studentPhone').value,
+                address: document.getElementById('studentAddress').value
+            };
+
+            if (document.getElementById('studentId').value) {
+                // Update existing student
+                const index = students.findIndex(s => s.id === studentData.id);
+                students[index] = studentData;
+            } else {
+                // Add new student
+                students.push(studentData);
+            }
+
+            localStorage.setItem('students', JSON.stringify(students));
+            renderStudents();
+            updateStats();
+            populateGradeSelects();
+            closeStudentModal();
+        });
+
+        function renderStudents() {
+            const tbody = document.getElementById('studentsTable');
+            tbody.innerHTML = '';
+            
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${student.nisn}</td>
+                    <td class="px-4 py-3">${student.name}</td>
+                    <td class="px-4 py-3">${student.class}</td>
+                    <td class="px-4 py-3">${student.email}</td>
+                    <td class="px-4 py-3">
+                        <button onclick="showStudentForm(${JSON.stringify(student).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 mr-2">Edit</button>
+                        <button onclick="deleteStudent('${student.id}')" class="text-red-500 hover:text-red-700">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Yakin ingin menghapus siswa ini?')) {
+                students = students.filter(s => s.id !== id);
+                localStorage.setItem('students', JSON.stringify(students));
+                renderStudents();
+                updateStats();
+                populateGradeSelects();
+            }
+        }
+
+        // Teacher Management
+        function showTeacherForm(teacher = null) {
+            document.getElementById('teacherModal').classList.remove('hidden');
+            if (teacher) {
+                document.getElementById('teacherId').value = teacher.id;
+                document.getElementById('teacherNIP').value = teacher.nip;
+                document.getElementById('teacherName').value = teacher.name;
+                document.getElementById('teacherSubject').value = teacher.subject;
+                document.getElementById('teacherEmail').value = teacher.email;
+                document.getElementById('teacherPhone').value = teacher.phone || '';
+                document.getElementById('teacherEducation').value = teacher.education || '';
+            } else {
+                document.getElementById('teacherForm').reset();
+                document.getElementById('teacherId').value = '';
+            }
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacherModal').classList.add('hidden');
+        }
+
+        document.getElementById('teacherForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const teacherData = {
+                id: document.getElementById('teacherId').value || Date.now().toString(),
+                nip: document.getElementById('teacherNIP').value,
+                name: document.getElementById('teacherName').value,
+                subject: document.getElementById('teacherSubject').value,
+                email: document.getElementById('teacherEmail').value,
+                phone: document.getElementById('teacherPhone').value,
+                education: document.getElementById('teacherEducation').value
+            };
+
+            if (document.getElementById('teacherId').value) {
+                const index = teachers.findIndex(t => t.id === teacherData.id);
+                teachers[index] = teacherData;
+            } else {
+                teachers.push(teacherData);
+            }
+
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            renderTeachers();
+            updateStats();
+            closeTeacherModal();
+        });
+
+        function renderTeachers() {
+            const tbody = document.getElementById('teachersTable');
+            tbody.innerHTML = '';
+            
+            teachers.forEach(teacher => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${teacher.nip}</td>
+                    <td class="px-4 py-3">${teacher.name}</td>
+                    <td class="px-4 py-3">${teacher.subject}</td>
+                    <td class="px-4 py-3">${teacher.email}</td>
+                    <td class="px-4 py-3">
+                        <button onclick="showTeacherForm(${JSON.stringify(teacher).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 mr-2">Edit</button>
+                        <button onclick="deleteTeacher('${teacher.id}')" class="text-red-500 hover:text-red-700">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteTeacher(id) {
+            if (confirm('Yakin ingin menghapus guru ini?')) {
+                teachers = teachers.filter(t => t.id !== id);
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+                renderTeachers();
+                updateStats();
+            }
+        }
+
+        // Schedule Management
+        function generateSchedule() {
+            const tbody = document.getElementById('scheduleTable');
+            tbody.innerHTML = '';
+            
+            const timeSlots = ['07:00-07:45', '07:45-08:30', '08:30-09:15', '09:30-10:15', '10:15-11:00', '11:00-11:45', '13:00-13:45', '13:45-14:30'];
+            const subjects = ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Fisika', 'Kimia', 'Biologi', 'Sejarah', 'Geografi'];
+            
+            timeSlots.forEach(time => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border border-gray-300 px-4 py-3 font-semibold bg-gray-50">${time}</td>
+                    <td class="border border-gray-300 px-4 py-3">${subjects[Math.floor(Math.random() * subjects.length)]}</td>
+                    <td class="border border-gray-300 px-4 py-3">${subjects[Math.floor(Math.random() * subjects.length)]}</td>
+                    <td class="border border-gray-300 px-4 py-3">${subjects[Math.floor(Math.random() * subjects.length)]}</td>
+                    <td class="border border-gray-300 px-4 py-3">${subjects[Math.floor(Math.random() * subjects.length)]}</td>
+                    <td class="border border-gray-300 px-4 py-3">${subjects[Math.floor(Math.random() * subjects.length)]}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Grades Management
+        function populateGradeSelects() {
+            const gradeStudent = document.getElementById('gradeStudent');
+            const reportStudent = document.getElementById('reportStudent');
+            
+            gradeStudent.innerHTML = '<option value="">Pilih Siswa</option>';
+            reportStudent.innerHTML = '<option value="">Pilih Siswa</option>';
+            
+            students.forEach(student => {
+                const option1 = document.createElement('option');
+                option1.value = student.id;
+                option1.textContent = student.name;
+                gradeStudent.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = student.id;
+                option2.textContent = student.name;
+                reportStudent.appendChild(option2);
+            });
+        }
+
+        document.getElementById('gradeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const gradeData = {
+                id: Date.now().toString(),
+                studentId: document.getElementById('gradeStudent').value,
+                subject: document.getElementById('gradeSubject').value,
+                value: parseInt(document.getElementById('gradeValue').value),
+                type: document.getElementById('gradeType').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            grades.push(gradeData);
+            localStorage.setItem('grades', JSON.stringify(grades));
+            updateGradesChart();
+            document.getElementById('gradeForm').reset();
+            alert('Nilai berhasil disimpan!');
+        });
+
+        function initializeGradesChart() {
+            const ctx = document.getElementById('gradesChart').getContext('2d');
+            window.gradesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Matematika', 'B. Indonesia', 'B. Inggris', 'Fisika', 'Kimia'],
+                    datasets: [{
+                        label: 'Rata-rata Nilai',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            updateGradesChart();
+        }
+
+        function updateGradesChart() {
+            if (!window.gradesChart) return;
+            
+            const subjects = ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Fisika', 'Kimia'];
+            const averages = subjects.map(subject => {
+                const subjectGrades = grades.filter(g => g.subject === subject);
+                if (subjectGrades.length === 0) return 0;
+                const sum = subjectGrades.reduce((acc, g) => acc + g.value, 0);
+                return Math.round(sum / subjectGrades.length);
+            });
+            
+            window.gradesChart.data.datasets[0].data = averages;
+            window.gradesChart.update();
+        }
+
+        function generateReport() {
+            const studentId = document.getElementById('reportStudent').value;
+            if (!studentId) return;
+            
+            const student = students.find(s => s.id === studentId);
+            const studentGrades = grades.filter(g => g.studentId === studentId);
+            
+            const reportDiv = document.getElementById('gradeReport');
+            if (studentGrades.length === 0) {
+                reportDiv.innerHTML = '<p class="text-gray-500">Belum ada nilai untuk siswa ini.</p>';
+                return;
+            }
+            
+            let reportHTML = `
+                <h4 class="text-lg font-semibold mb-4">Laporan Nilai - ${student.name}</h4>
+                <table class="w-full table-auto">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Mata Pelajaran</th>
+                            <th class="px-4 py-2 text-left">Jenis</th>
+                            <th class="px-4 py-2 text-left">Nilai</th>
+                            <th class="px-4 py-2 text-left">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            studentGrades.forEach(grade => {
+                reportHTML += `
+                    <tr class="border-b border-gray-200">
+                        <td class="px-4 py-2">${grade.subject}</td>
+                        <td class="px-4 py-2">${grade.type}</td>
+                        <td class="px-4 py-2">${grade.value}</td>
+                        <td class="px-4 py-2">${grade.date}</td>
+                    </tr>
+                `;
+            });
+            
+            reportHTML += '</tbody></table>';
+            reportDiv.innerHTML = reportHTML;
+        }
+
+        // Chat System
+        function selectChat(chatType) {
+            currentChat = chatType;
+            const titles = {
+                'guru': 'Grup Guru',
+                'siswa': 'Grup Siswa',
+                'orangtua': 'Grup Orang Tua'
+            };
+            
+            document.getElementById('chatTitle').textContent = titles[chatType];
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendButton').disabled = false;
+            
+            loadMessages(chatType);
+        }
+
+        function loadMessages(chatType) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const chatMessages = messages[chatType] || [];
+            
+            messagesDiv.innerHTML = '';
+            chatMessages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message p-3 bg-gray-100 rounded-lg';
+                messageDiv.innerHTML = `
+                    <div class="font-semibold text-sm text-gray-600">${message.sender}</div>
+                    <div class="mt-1">${message.text}</div>
+                    <div class="text-xs text-gray-500 mt-1">${message.time}</div>
+                `;
+                messagesDiv.appendChild(messageDiv);
+            });
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText || !currentChat) return;
+            
+            if (!messages[currentChat]) {
+                messages[currentChat] = [];
+            }
+            
+            const message = {
+                sender: 'Admin',
+                text: messageText,
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            messages[currentChat].push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            loadMessages(currentChat);
+            messageInput.value = '';
+        }
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Search functionality
+        document.getElementById('studentSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#studentsTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('teacherSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#teachersTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Add sample data
+        function addSampleData() {
+            const sampleStudents = [
+                { id: '1', nisn: '1234567890', name: 'Ahmad Rizki', class: 'X-A', email: 'ahmad@email.com', phone: '081234567890', address: 'Jakarta' },
+                { id: '2', nisn: '1234567891', name: 'Siti Nurhaliza', class: 'X-B', email: 'siti@email.com', phone: '081234567891', address: 'Bogor' },
+                { id: '3', nisn: '1234567892', name: 'Budi Santoso', class: 'XI-A', email: 'budi@email.com', phone: '081234567892', address: 'Depok' }
+            ];
+            
+            const sampleTeachers = [
+                { id: '1', nip: '198501012010011001', name: 'Dr. Indira Sari', subject: 'Matematika', email: 'indira@sekolah.com', phone: '081234567893', education: 'S3 Matematika UI' },
+                { id: '2', nip: '198502022010012002', name: 'Prof. Bambang Wijaya', subject: 'Fisika', email: 'bambang@sekolah.com', phone: '081234567894', education: 'S3 Fisika ITB' }
+            ];
+            
+            students.push(...sampleStudents);
+            teachers.push(...sampleTeachers);
+            
+            localStorage.setItem('students', JSON.stringify(students));
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            
+            updateStats();
+            renderStudents();
+            renderTeachers();
+            populateGradeSelects();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d5ebe14126e416',t:'MTc1NDg5NjMxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
