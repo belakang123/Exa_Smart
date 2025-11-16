@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="shortcut icon" href="../assets/logo.jpg"" type="image/x-icon">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-950 text-white font-sans min-h-screen flex flex-col items-center justify-center px-4">
+
+  <div class="max-w-8xl w-full bg-gray-900 rounded-xl shadow-lg p-8">
+    <h1 class="text-3xl font-bold text-purple-400 mb-6 text-center animate-bounce">📊 Admin Panel</h1>
+
+    <!-- Total Pengunjung -->
+    <div class="bg-gray-800 rounded-lg p-6 flex items-center justify-between hover:bg-purple-700 transition">
+      <div>
+        <h2 class="text-xl font-semibold">Total Pengunjung</h2>
+        <p class="text-sm text-gray-400">Jumlah orang yang telah membuka website</p>
+      </div>
+      <div class="text-5xl font-bold text-purple-300" id="visitorCount">0</div>
+    </div>
+
+    <div class="mt-4 text-center text-sm text-gray-500">
+      Terakhir diperbarui: <span id="lastUpdated">-</span>
+    </div>
+
+    <!-- Grafik Statistik -->
+    <h2 class="text-xl font-semibold text-white mt-10 mb-4">Statistik Harian</h2>
+    <canvas id="visitorChart" class="bg-black rounded-lg p-4"></canvas>
+  </div>
+
+  <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyACcj76KmLSaY7G4SNkZGmrOF779XB8iHI",
+      authDomain: "room-chat-97ef1.firebaseapp.com",
+      databaseURL: "https://room-chat-97ef1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "room-chat-97ef1",
+      storageBucket: "room-chat-97ef1.firebasestorage.app",
+      messagingSenderId: "350995805587",
+      appId: "1:350995805587:web:ac43bc3a0e9445afa22466",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const visitorRef = db.ref("visitorCount");
+    const logRef = db.ref("visitorLog");
+
+    // Tampilkan total pengunjung
+    visitorRef.on("value", function(snapshot) {
+      document.getElementById("visitorCount").textContent = snapshot.val();
+      const now = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
+      document.getElementById("lastUpdated").textContent = now;
+    });
+
+    // Inisialisasi Chart.js
+    const ctx = document.getElementById('visitorChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Jumlah Kunjungan',
+          data: [],
+          backgroundColor: 'rgba(168, 85, 247, 0.7)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Statistik Pengunjung Harian'
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Tanggal'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Jumlah Kunjungan'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Update data grafik dari Firebase
+    logRef.on("value", function(snapshot) {
+      const data = snapshot.val();
+      const dailyCount = {};
+
+      for (let key in data) {
+        const date = new Date(data[key].timestamp).toLocaleDateString("id-ID");
+        dailyCount[date] = (dailyCount[date] || 0) + 1;
+      }
+
+      const labels = Object.keys(dailyCount);
+      const values = Object.values(dailyCount);
+
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = values;
+      chart.update();
+    });
+  </script>
+</body>
+</html>
+
+
+
+<!--Navbar-->
+<header class="fixed top-0 w-full z-50 bg-black bg-opacity-70 backdrop-blur-sm text-gray-300">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex space-x-3">
+          <img src="./assets/logo.ico" alt="" class="h-7 w-7 object-cover rounded-full">
+          <h1 class="text-lg md:text-xl font-bold tracking-wide">Exa Edu-Smart</h1>
+      </div>
+
+      <!-- Hamburger Icon -->
+      <button id="menuToggle" class="md:hidden text-white focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+      </button>
+
+      <!-- Search Bar dengan Clear Button (Hanya di Desktop) -->
+      <div class="hidden md:flex flex-1 mx-6">
+          <div class="relative w-full">
+              <input id="searchInput" type="text" placeholder="Cari kajian, murotal, atau bahasa Arab..."
+                  class="w-full pl-12 pr-10 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md transition duration-300">
+
+              <!-- Ikon Search -->
+              <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+                  </svg>
+              </div>
+
+              <!-- Tombol Clear -->
+              <button id="clearBtn"
+                  class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white hidden"
+                  type="button">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+              </button>
+          </div>
+      </div>
+
+      <!-- Desktop Menu -->
+      <nav class="space-x-6 hidden md:flex">
+          <!-- Dropdown Masuk -->
+          <div class="relative group">
+              <button class="flex items-center gap-1 hover:text-purple-400 group-hover:text-purple-400">
+                  Kategori
+                  <svg class="w-4 h-4 transform transition-transform duration-300 group-hover:rotate-180"
+                      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+              </button>
+              <div
+                  class="absolute hidden group-hover:flex flex-col bg-black bg-opacity-90 backdrop-blur-sm text-white mt-2 rounded-lg shadow-lg min-w-[150px] z-50">
+                  <a href="./public/kategori/bahasa arab/bahasa-arab.html"
+                      class="px-4 py-2 hover:bg-purple-700">Bahasa
+                      Arab</a>
+                  <a href="./public/proses.html" class="px-4 py-2 hover:bg-purple-700">Kajian</a>
+                  <a href="./public/proses.html" class="px-4 py-2 hover:bg-purple-700">Murotal</a>
+              </div>
+          </div>
+          <!-- Dropdown Artikel -->
+          <div class="relative group">
+              <button class="flex items-center gap-1 hover:text-purple-400 group-hover:text-purple-400">
+                  Artikel
+                  <svg class="w-4 h-4 transform transition-transform duration-300 group-hover:rotate-180"
+                      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+              </button>
+              <div
+                  class="absolute hidden group-hover:flex flex-col bg-black bg-opacity-90 backdrop-blur-sm text-white mt-2 rounded-lg shadow-lg min-w-[150px] z-50">
+                  <a href="./public/proses.html" class="px-4 py-2 hover:bg-purple-700">Bahasa Arab</a>
+                  <a href="./public/proses.html" class="px-4 py-2 hover:bg-purple-700">Kajian</a>
+                  <a href="./public/proses.html" class="px-4 py-2 hover:bg-purple-700">Murotal</a>
+              </div>
+          </div>
+          <a href="https://www.almaany.com" class="hover:text-purple-400">Kamus</a>
+          <a href="./public/room-chat.html" class="hover:text-purple-400">Chat</a>
+      </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="md:hidden hidden flex-col bg-black bg-opacity-90 px-4 py-6 space-y-4 text-left">
+      <!-- Search Bar Mobile (Opsional, jika ingin ditampilkan di mobile) -->
+      <div class="relative mb-4">
+          <input id="searchInputMobile" type="text" placeholder="Cari kajian, murotal..."
+              class="w-full pl-10 pr-10 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md transition duration-300">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+              </svg>
+          </div>
+          <button id="clearBtnMobile" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white hidden">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+          </button>
+      </div>
+
+      <!-- Dropdown Kategori Mobile -->
+      <div class="space-y-2">
+          <button id="masukToggle"
+              class="w-full flex items-center justify-between text-white hover:text-purple-400">
+              <span>Kategori</span>
+              <svg id="masukArrow" class="w-4 h-4 transform transition-transform duration-300" fill="none"
+                  stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+          </button>
+          <div id="masukDropdown" class="hidden flex-col space-y-2 pl-4">
+              <a href="./public/kategori/bahasa arab/bahasa-arab.html"
+                  class="block text-white hover:text-purple-400">Bahasa
+                  Arab</a>
+              <a href="./public/proses.html" class="block text-white hover:text-purple-400">Kajian</a>
+              <a href="./public/proses.html" class="block text-white hover:text-purple-400">Murotal</a>
+          </div>
+      </div>
+
+      <!-- Dropdown Artikel Mobile -->
+      <div class="space-y-2">
+          <button id="artikelToggle"
+              class="w-full flex items-center justify-between text-white hover:text-purple-400">
+              <span>Artikel</span>
+              <svg id="artikelArrow" class="w-4 h-4 transform transition-transform duration-300" fill="none"
+                  stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+          </button>
+          <div id="artikelDropdown" class="hidden flex-col space-y-2 pl-4">
+              <a href="./public/proses.html" class="block text-white hover:text-purple-400">Bahasa
+                  Arab</a>
+              <a href="./public/proses.html" class="block text-white hover:text-purple-400">Kajian</a>
+              <a href="./public/proses.html" class="block text-white hover:text-purple-400">Murotal</a>
+          </div>
+      </div>
+      <a href="https://www.almaany.com" class="block text-white hover:text-purple-400">Kamus</a>
+      <a href="./public/room-chat.html" class="block text-white hover:text-purple-400">Chat</a>
+  </div>
+
+  <!-- Marquee Donatur -->
+  <div class="bg-gradient-to-br from-green-800 to-black text-white py-2 overflow-hidden whitespace-nowrap">
+      <div class="inline-block marquee hover:paused px-4 text-sm md:text-base">
+          🎉 Terima kasih kepada para donatur:
+          <span class="mx-2 md:mx-4">Ust. Ahmad</span> •
+          <span class="mx-2 md:mx-4">Fatimah Azzahra</span> •
+          <span class="mx-2 md:mx-4">Hamba Allah</span> •
+          <span class="mx-2 md:mx-4">Muhammad Rizki</span> •
+          <span class="mx-2 md:mx-4">Nurul Hidayah</span> •
+          <span class="mx-2 md:mx-4">Muhammad</span> •
+          <span class="mx-2 md:mx-4">Nurul</span> •
+          <span class="mx-2 md:mx-4">Hidayat</span> •
+          <span class="mx-2 md:mx-4">dan Anda selanjutnya... 🤲</span>
+      </div>
+  </div>
+</header>
+
+<!-- Tambahkan CSS untuk Marquee Animasi (di dalam <style> atau file CSS terpisah) -->
+<style>
+  .marquee {
+      animation: scroll 20s linear infinite;
+  }
+  .marquee:hover {
+      animation-play-state: paused;
+  }
+  @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+  }
+</style>
+
+<!-- JavaScript untuk Toggle Mobile Menu (Tambahkan di akhir <body>) -->
+<script>
+  // Toggle Mobile Menu
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+  });
+
+  // Toggle Dropdown Kategori Mobile
+  const masukToggle = document.getElementById('masukToggle');
+  const masukDropdown = document.getElementById('masukDropdown');
+  const masukArrow = document.getElementById('masukArrow');
+  masukToggle.addEventListener('click', () => {
+      masukDropdown.classList.toggle('hidden');
+      masukArrow.classList.toggle('rotate-180');
+  });
+
+  // Toggle Dropdown Artikel Mobile
+  const artikelToggle = document.getElementById('artikelToggle');
+  const artikelDropdown = document.getElementById('artikelDropdown');
+  const artikelArrow = document.getElementById('artikelArrow');
+  artikelToggle.addEventListener('click', () => {
+      artikelDropdown.classList.toggle('hidden');
+      artikelArrow.classList.toggle('rotate-180');
+  });
+
+  // Clear Button untuk Search (Desktop dan Mobile)
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const searchInputMobile = document.getElementById('searchInputMobile');
+  const clearBtnMobile = document.getElementById('clearBtnMobile');
+
+  function toggleClearBtn(input, btn) {
+      if (input.value.length > 0) {
+          btn.classList.remove('hidden');
+      } else {
+          btn.classList.add('hidden');
+      }
+  }
+
+  searchInput.addEventListener('input', () => toggleClearBtn(searchInput, clearBtn));
+  clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      toggleClearBtn(searchInput, clearBtn);
+  });
+
+  searchInputMobile.addEventListener('input', () => toggleClearBtn(searchInputMobile, clearBtnMobile));
+  clearBtnMobile.addEventListener('click', () => {
+      searchInputMobile.value = '';
+      toggleClearBtn(searchInputMobile, clearBtnMobile);
+  });
+</script>
